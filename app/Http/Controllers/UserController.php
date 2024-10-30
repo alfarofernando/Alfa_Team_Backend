@@ -43,9 +43,10 @@ class UserController extends Controller
         return response()->json(['message' => 'Credenciales incorrectas'], 401);
     }
 
+
     // crear un usuario
 
-    public function create(Request $request)
+    public function register(Request $request)
     {
         $data = $request->validate([
             'username' => 'required|unique:usuarios',
