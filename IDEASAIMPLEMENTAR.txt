@@ -1,0 +1,9 @@
+MANTENER ABIERTA LA SESION FRENTE AL REFRESCO DE PAGINA:
+
+*Usa el backend para manejar la lógica de autenticación y la gestión de sesiones.
+
+*Usa el frontend para almacenar y verificar el estado de la sesión,
+asegurando que la experiencia del usuario sea fluida.
+
+*Considera usar JWT o cookies para mantener el estado de la sesión de manera segura y eficiente.
+

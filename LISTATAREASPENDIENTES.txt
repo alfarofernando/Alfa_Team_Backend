@@ -1,0 +1,48 @@
+1. Estructura de Base de Datos
+Diseñar el esquema de base de datos:
+Crear tablas para users, courses, lessons.
+users: id, username, password, email, role (admin/user), created_at, updated_at.
+courses: id, title, description, created_by (user_id), created_at, updated_at.
+lessons: id, title, content, course_id, created_at, updated_at.
+2. Configuración del Entorno
+Configurar el entorno de desarrollo:
+Instalar y configurar PHP, PDO y cualquier framework (por ejemplo, Laravel o Slim) que desees usar.
+Configurar conexión a la base de datos.
+Configurar el manejo de CORS y otras configuraciones necesarias.
+3. Implementación de Autenticación
+Crear rutas de autenticación:
+Ruta para registro de usuarios (POST).
+Ruta para inicio de sesión (POST).
+Ruta para cierre de sesión (POST).
+Implementar middleware de autenticación:
+Verificar si el usuario está autenticado para rutas protegidas.
+4. CRUD para Usuarios
+Crear Rutas:
+
+Crear Usuario (POST): Ruta para registrar nuevos usuarios.
+Leer Usuarios (GET): Ruta para obtener la lista de usuarios.
+Actualizar Usuario (PUT/PATCH): Ruta para actualizar la información del usuario.
+Eliminar Usuario (DELETE): Ruta para eliminar un usuario.
+Implementar Controladores:
+
+Crear un UserController para manejar la lógica de las operaciones CRUD de usuarios.
+5. CRUD para Cursos
+Crear Rutas:
+
+Crear Curso (POST): Ruta para agregar un nuevo curso.
+Leer Cursos (GET): Ruta para obtener la lista de cursos.
+Actualizar Curso (PUT/PATCH): Ruta para modificar un curso existente.
+Eliminar Curso (DELETE): Ruta para eliminar un curso.
+Implementar Controladores:
+
+Crear un CourseController para manejar las operaciones CRUD de cursos.
+6. CRUD para Lecciones
+Crear Rutas:
+
+Crear Lección (POST): Ruta para agregar una nueva lección a un curso.
+Leer Lecciones (GET): Ruta para obtener las lecciones de un curso específico.
+Actualizar Lección (PUT/PATCH): Ruta para modificar una lección existente.
+Eliminar Lección (DELETE): Ruta para eliminar una lección.
+Implementar Controladores:
+
+Crear un LessonController para manejar las operaciones CRUD de lecciones.
