@@ -1,55 +1,40 @@
 <?php
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+
+// Cargar la configuración de la base de datos
+require_once '../config/database.php';
+
+// Habilitar CORS
+header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
+// Manejo de las solicitudes OPTIONS (preflight)
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit;
+}
+
+// Cargar los modelos y controladores
+require_once '../models/User.php';
+require_once '../controllers/UserController.php';
+
+// Crear una instancia de la conexión a la base de datos
+$db = Database::getConnection();
 header('Content-Type: application/json');
 
-// Manejo de opciones de preflight (CORS)
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    http_response_code(200);
-    exit();
+// Manejo de la ruta raíz
+if ($_SERVER['REQUEST_URI'] === '/') {
+    echo json_encode(['message' => 'API is running']);
+    exit;
 }
 
-// Configuración de la base de datos
-$host = 'localhost';
-$db = 'alfateam';
-$user = 'root'; // Cambia esto si tienes otro usuario
-$pass = ''; // Cambia esto si tienes otra contraseña
-
-// Crear conexión
-$conn = new mysqli($host, $user, $pass, $db);
-
-// Verificar conexión
-if ($conn->connect_error) {
-    die(json_encode(['message' => 'Error de conexión a la base de datos: ' . $conn->connect_error]));
+// Ruta para iniciar sesión
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['REQUEST_URI'], '/login') !== false) {
+    error_log("Solicitud POST recibida en /login"); // Log para rastrear la solicitud de login
+    $userController = new UserController($db);
+    $userController->login();
+} else {
+    // En caso de que la ruta no sea válida, enviar un mensaje de error
+    http_response_code(404);
+    error_log("Ruta no encontrada: " . $_SERVER['REQUEST_URI']); // Log de error
+    echo json_encode(['error' => 'Not Found']);
 }
-
-// Manejo de la solicitud de inicio de sesión
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $input = json_decode(file_get_contents('php://input'), true);
-    $email = $input['email'] ?? '';
-    $password = $input['password'] ?? '';
-
-    // Preparar la consulta
-    $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = ? AND password = ?");
-    $stmt->bind_param("ss", $email, $password);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    // Verificar si hay resultados
-    if ($result->num_rows > 0) {
-        echo json_encode(['message' => 'Inicio de sesión exitoso']);
-        http_response_code(200);
-    } else {
-        echo json_encode(['message' => 'Credenciales incorrectas']);
-        http_response_code(401);
-    }
-
-    $stmt->close();
-    $conn->close();
-    exit();
-}
-
-// Respuesta por defecto
-echo json_encode(['message' => 'Método no permitido']);
-http_response_code(405);
