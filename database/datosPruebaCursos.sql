@@ -1,5 +1,5 @@
 -- Insertar datos de prueba en la tabla cursos
-INSERT INTO cursos (title, description, image, category, price, level)
+INSERT INTO courses (title, description, image, category, price, level)
 VALUES
 ('Python para Principiantes', 'Curso básico para aprender los fundamentos de Python.', 'python_principiantes.jpg', 'Programación', 39.99, 1),
 ('Desarrollo Web Full Stack', 'Curso completo sobre desarrollo web con HTML, CSS y JavaScript.', 'desarrollo_web.jpg', 'Desarrollo Web', 119.99, 2),

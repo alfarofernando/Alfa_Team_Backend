@@ -1,0 +1,19 @@
+version apache 2.4.59
+version php 8.2.18
+version mysql 8.3.0
+version mariadb 11.3.2
+
+archivo httpd-vhost.conf
+
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot "C:/wamp64/www/Proyecto_AlfaTeam/Alfa_Team_Backend"
+    ServerName proyecto-alfa.local
+    ErrorLog "logs/proyecto-alfa-error.log"
+    CustomLog "logs/proyecto-alfa-access.log" common
+</VirtualHost>
+
+
+
+archivo host system32
+127.0.0.1 proyecto-alfa.local

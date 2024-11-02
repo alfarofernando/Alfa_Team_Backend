@@ -1,5 +1,5 @@
 -- Insertar datos de prueba en la tabla usuarios
-INSERT INTO usuarios (username, password, email, name, surname, age, isAdmin, permittedLessons, image)
+INSERT INTO users (username, password, email, name, surname, age, isAdmin, permittedCourses, image)
 VALUES
 ('jrodriguez', 'hashed_password_1', 'jrodriguez@example.com', 'Jorge', 'Rodriguez', 29, 0, JSON_ARRAY(1, 2, 5, 6), 'jrodriguez.jpg'),
 ('mlopez', 'hashed_password_2', 'mlopez@example.com', 'Maria', 'Lopez', 32, 1, JSON_ARRAY(3, 4), 'mlopez.jpg'),

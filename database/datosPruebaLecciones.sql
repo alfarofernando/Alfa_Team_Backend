@@ -1,7 +1,7 @@
 -- Insertar datos de prueba en la tabla lecciones para cada curso
 
 -- Lecciones para "Python para Principiantes"
-INSERT INTO lecciones (curso_id, title, type, content)
+INSERT INTO lessons (course_id, title, type, content)
 VALUES
 (1, 'Introducción a Python', 'text', 'Contenido de introducción a Python...'),
 (1, 'Instalación de Python', 'video', 'Video explicativo de instalación de Python...'),
@@ -15,7 +15,7 @@ VALUES
 (1, 'Proyecto Final: Calculadora Básica', 'video', 'Video del proyecto final: Calculadora en Python...');
 
 -- Lecciones para "Desarrollo Web Full Stack"
-INSERT INTO lecciones (curso_id, title, type, content)
+INSERT INTO lessons (course_id, title, type, content)
 VALUES
 (2, 'Introducción al Desarrollo Web', 'text', 'Conceptos básicos sobre desarrollo web...'),
 (2, 'HTML: Fundamentos', 'video', 'Video explicativo de HTML básico...'),
@@ -29,7 +29,7 @@ VALUES
 (2, 'Proyecto Final: Blog Completo', 'video', 'Video del proyecto final: Blog con React y Node.js...');
 
 -- Lecciones para "Diseño Gráfico con Adobe Illustrator"
-INSERT INTO lecciones (curso_id, title, type, content)
+INSERT INTO lessons (course_id, title, type, content)
 VALUES
 (3, 'Introducción a Illustrator', 'video', 'Contenido sobre el entorno de trabajo de Illustrator...'),
 (3, 'Herramientas de Selección', 'text', 'Uso de herramientas de selección en Illustrator...'),
@@ -43,7 +43,7 @@ VALUES
 (3, 'Proyecto Final: Tarjeta de Visita', 'text', 'Creación de una tarjeta de visita en Illustrator...');
 
 -- Lecciones para "Introducción a la Inteligencia Artificial"
-INSERT INTO lecciones (curso_id, title, type, content)
+INSERT INTO lessons (course_id, title, type, content)
 VALUES
 (4, 'Historia de la Inteligencia Artificial', 'text', 'Historia y evolución de la IA...'),
 (4, 'Conceptos Básicos de IA', 'video', 'Lección sobre conceptos básicos de IA...'),
@@ -57,7 +57,7 @@ VALUES
 (4, 'Proyecto Final: Predicción de Datos', 'video', 'Video del proyecto final de predicción...');
 
 -- Lecciones para "Desarrollo de Aplicaciones Android"
-INSERT INTO lecciones (curso_id, title, type, content)
+INSERT INTO lessons (course_id, title, type, content)
 VALUES
 (5, 'Introducción a Android', 'text', 'Conceptos básicos de desarrollo Android...'),
 (5, 'Instalación de Android Studio', 'video', 'Instalación y configuración de Android Studio...'),
@@ -71,7 +71,7 @@ VALUES
 (5, 'Proyecto Final: To-Do App', 'video', 'Proyecto final de lista de tareas en Android...');
 
 -- Lecciones para "SQL para Análisis de Datos"
-INSERT INTO lecciones (curso_id, title, type, content)
+INSERT INTO lessons (course_id, title, type, content)
 VALUES
 (6, 'Introducción a Bases de Datos', 'text', 'Conceptos básicos sobre bases de datos...'),
 (6, 'SQL: Sintaxis Básica', 'video', 'Video de introducción a la sintaxis SQL...'),
