@@ -1,64 +1,81 @@
 <?php
-
 class UserController
-// Se define la clase UserController, que maneja la lógica de control relacionada con los usuarios,
-// como la autenticación y la gestión de datos de usuario.
 {
     private $user;
-    // Se declara una propiedad privada $user para almacenar una instancia del modelo User.
 
     public function __construct($db)
-    // Este es el constructor de la clase UserController, que se llama al crear una nueva instancia de la clase.
     {
-        $this->user = new User($db); // Crear una instancia del modelo
-        // Se inicializa la propiedad $user creando una nueva instancia de la clase User,
-        // pasando la conexión a la base de datos como argumento.
+        $this->user = new User($db); // Crear una instancia del modelo User
     }
 
     public function login()
-    // Este método maneja el proceso de inicio de sesión de un usuario.
     {
-        // Obtén los datos de la solicitud
         $data = json_decode(file_get_contents('php://input'), true);
-        // Se obtienen los datos del cuerpo de la solicitud HTTP (en formato JSON)
-        // y se decodifican en un array asociativo.
 
-        $username = $data['username'] ?? null; // Captura el username
-        // Se intenta capturar el valor del nombre de usuario del array $data,
-        // utilizando null como valor predeterminado si no existe.
-
-        $password = $data['password'] ?? null; // Captura la contraseña
-        // Se intenta capturar el valor de la contraseña del array $data,
-        // utilizando null como valor predeterminado si no existe.
+        $email = $data['email'] ?? null;  // Cambiar de 'username' a 'email'
+        $password = $data['password'] ?? null;
 
         // Validar los datos
-        if (!$username || !$password) {
-            // Verifica si el nombre de usuario o la contraseña no se proporcionaron.
+        if (!$email || !$password) {
             http_response_code(400);
-            // Si faltan datos, se establece el código de respuesta HTTP a 400 (Bad Request).
-            echo json_encode(['message' => 'Username y contraseña son requeridos.']);
-            // Se devuelve un mensaje de error en formato JSON indicando que ambos campos son obligatorios.
-            return; // Se termina la ejecución del método.
+            echo json_encode(['message' => 'Email y contraseña son requeridos.']);
+            return;
         }
 
-        // Llama al modelo para validar el usuario
-        $user = $this->user->validateUser($username, $password);
-        // Se llama al método validateUser de la instancia de User,
-        // pasando el nombre de usuario y la contraseña para validar las credenciales.
+        // Llamar al modelo para validar el usuario
+        $user = $this->user->validateUser($email, $password);  // Pasar email en lugar de username
 
         if ($user) {
-            // Si el usuario es válido, devuelve la información del usuario
             http_response_code(200);
-            // Se establece el código de respuesta HTTP a 200 (OK).
-            echo json_encode($user); // Ahora incluirá isAdmin
-            // Se devuelve la información del usuario en formato JSON,
-            // que incluye el nombre de usuario y si es administrador.
+            echo json_encode($user); // Incluye el email y el estado de admin
         } else {
-            // Si no es válido, devuelve un mensaje de error
             http_response_code(401);
-            // Se establece el código de respuesta HTTP a 401 (Unauthorized).
             echo json_encode(['message' => 'Credenciales incorrectas.']);
-            // Se devuelve un mensaje de error en formato JSON indicando que las credenciales son incorrectas.
+        }
+    }
+
+
+    public function createUser()
+    {
+        // Obtener los datos JSON de la solicitud
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // Asignar los valores de los campos necesarios y opcionales
+        $email = $data['email'] ?? null;
+        $password = $data['password'] ?? null;
+        $name = $data['name'] ?? null;
+        $surname = $data['surname'] ?? null;
+        $age = $data['age'] ?? null;
+        $isAdmin = $data['isAdmin'] ?? 0; // Valor predeterminado de 0 para isAdmin
+        $image = $data['image'] ?? null;
+        $permittedCourses = $data['permittedCourses'] ?? null; // Asignar permitido si lo pasa
+
+        // Validar que los campos requeridos no estén vacíos
+        if (!$email || !$password) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Correo electrónico y contraseña son requeridos.']);
+            return;
+        }
+
+        // Llamar al modelo para crear el usuario, pasando todos los campos (incluido permittedCourses)
+        $userCreated = $this->user->createUser(
+            $email,
+            $password,
+            $name,
+            $surname,
+            $age,
+            $isAdmin,
+            $image,
+            $permittedCourses // Se pasa también permittedCourses
+        );
+
+        // Verificar si el usuario fue creado exitosamente
+        if ($userCreated) {
+            http_response_code(201);
+            echo json_encode(['message' => 'Usuario creado exitosamente.']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['message' => 'Error al crear el usuario.']);
         }
     }
 }
