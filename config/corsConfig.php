@@ -6,7 +6,7 @@ header("Access-Control-Allow-Origin: http://localhost:5173");
 // Permite que las solicitudes de origen cruzado se realicen desde http://localhost:5173.
 // Esto significa que las aplicaciones que se ejecutan en este origen podrán acceder a los recursos de la API.
 
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 // Especifica qué métodos HTTP están permitidos para las solicitudes de origen cruzado.
 // En este caso, se permiten las solicitudes GET, POST y OPTIONS.
 
