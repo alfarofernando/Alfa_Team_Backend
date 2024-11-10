@@ -1,15 +1,19 @@
 <?php
-
-// Habilitar CORS
-// Se establecen las cabeceras (headers) HTTP necesarias para permitir CORS (Cross-Origin Resource Sharing).
+// Permitir el acceso desde un origen específico
 header("Access-Control-Allow-Origin: http://localhost:5173");
-// Permite que las solicitudes de origen cruzado se realicen desde http://localhost:5173.
-// Esto significa que las aplicaciones que se ejecutan en este origen podrán acceder a los recursos de la API.
 
+// Permitir métodos específicos
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-// Especifica qué métodos HTTP están permitidos para las solicitudes de origen cruzado.
-// En este caso, se permiten las solicitudes GET, POST y OPTIONS.
 
-header("Access-Control-Allow-Headers: Content-Type");
-// Permite que se envíen ciertos encabezados HTTP en las solicitudes de origen cruzado.
-// Aquí se permite el encabezado 'Content-Type', que se usa comúnmente para indicar el tipo de contenido de la solicitud.
+// Permitir encabezados personalizados
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+// Permitir que las credenciales (cookies, cabeceras de autenticación) se envíen con la solicitud
+header("Access-Control-Allow-Credentials: true");
+
+// Manejo de pre-flight requests (opcional, pero útil para solicitudes complejas)
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    // Responder con un código 200 a las solicitudes de tipo OPTIONS
+    http_response_code(200);
+    exit;
+}
