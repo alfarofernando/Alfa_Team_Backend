@@ -7,3 +7,4 @@ asegurando que la experiencia del usuario sea fluida.
 
 *Considera usar JWT o cookies para mantener el estado de la sesión de manera segura y eficiente.
 
+*necesito actualizar el sistema para que admita la utilizacion de estado "habilitado/deshabilitado" para los cursos/lecciones
