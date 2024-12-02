@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/../models/User.php';
 class UserController
 {
     private $user;
@@ -60,12 +61,9 @@ class UserController
         // Asignar los valores de los campos necesarios y opcionales
         $email = $data['email'] ?? null;
         $password = $data['password'] ?? null;
-        $name = $data['name'] ?? null;
-        $surname = $data['surname'] ?? null;
-        $age = $data['age'] ?? null;
+        $username = $data['username'] ?? null;
         $isAdmin = $data['isAdmin'] ?? 0; // Valor predeterminado de 0 para isAdmin
         $image = $data['image'] ?? null;
-        $permittedCourses = $data['permittedCourses'] ?? null; // Asignar permitido si lo pasa
 
         // Validar que los campos requeridos no estén vacíos
         if (!$email || !$password) {
@@ -78,16 +76,13 @@ class UserController
         // Log de validación antes de crear el usuario
         error_log("Creating user with email: $email");
 
-        // Llamar al modelo para crear el usuario, pasando todos los campos (incluido permittedCourses)
+        // Llamar al modelo para crear el usuario, pasando todos los campos
         $userCreated = $this->user->createUser(
             $email,
             $password,
-            $name,
-            $surname,
-            $age,
+            $username,
             $isAdmin,
-            $image,
-            $permittedCourses // Se pasa también permittedCourses
+            $image
         );
 
         // Verificar si el usuario fue creado exitosamente
@@ -100,20 +95,6 @@ class UserController
             http_response_code(500);
             echo json_encode(['message' => 'Error al crear el usuario.']);
         }
-    }
-
-    public function getUsers()
-    {
-        // Log de solicitud de obtener usuarios
-        error_log("Get Users request received");
-
-        $users = $this->user->getAllUsers();
-        header('Content-Type: application/json');
-
-        // Log de respuesta de usuarios
-        error_log("Returning users: " . json_encode($users));
-
-        echo json_encode($users);
     }
 
     public function getUserData($userId)
@@ -139,13 +120,56 @@ class UserController
         }
     }
 
-    public function getUserPermittedCourses($userId)
+    public function getUsersWithCourses()
+    {
+        //log de solicitud de obtencion de cursos de usuarios
+        error_log("get users courses request received");
+
+        $usersCourses = $this->user->getUsersWithCourses();
+        header('Content-Type: application/json');
+
+        //log de respuesta de la request
+        error_log("returning data: " . json_encode($usersCourses));
+        echo json_encode($usersCourses);
+    }
+
+    // Asignar curso a un usuario
+    public function assignCourse(
+        $userId,
+        $courseId
+    ) {
+        try {
+            // Log de depuración: datos recibidos
+            error_log("Received data: userId = " . $userId . ", courseId = " . $courseId);
+
+            $success = $this->user->assignCourse($userId, $courseId);
+
+            if ($success) {
+                echo json_encode(['message' => 'Curso asignado correctamente']);
+            } else {
+                echo json_encode(['error' => 'El curso ya está asignado a este usuario']);
+            }
+        } catch (Exception $e) {
+            // Log de depuración: error en el flujo
+            error_log("Error in assignCourse: " . $e->getMessage());
+            echo json_encode(['error' => 'Error en la asignación: ' . $e->getMessage()]);
+        }
+    }
+    public function revokeCourse($userId, $courseId)
     {
         try {
-            $courses = $this->user->getUserPermittedCourses($userId);
-            echo json_encode(['permittedCourses' => $courses]);
+            // Verificar si el curso está asignado al usuario
+            $success = $this->user->revokeCourse($userId, $courseId);
+
+            if ($success) {
+                echo json_encode(['message' => 'Curso desasignado correctamente']);
+            } else {
+                echo json_encode(['error' => 'El curso no está asignado a este usuario']);
+            }
         } catch (Exception $e) {
-            echo json_encode(['error' => $e->getMessage()]);
+            // Log de depuración: error en el flujo
+            error_log("Error in revokeCourse: " . $e->getMessage());
+            echo json_encode(['error' => 'Error en la desasignación: ' . $e->getMessage()]);
         }
     }
 }

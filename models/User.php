@@ -1,143 +1,146 @@
 <?php
+
 class User
 {
-    private $db;
+  private $db;
 
-    public function __construct($db)
-    {
-        $this->db = $db;
+  public function __construct($db)
+  {
+    $this->db = $db;
+  }
+
+  public function validateUser($email, $password)
+  {
+    $query = "SELECT id, email, password, isAdmin FROM users WHERE email = :email LIMIT 1";
+    $stmt = $this->db->prepare($query);
+    $stmt->bindParam(':email', $email);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user && $password === $user['password']) {
+      return [
+        'id' => $user['id'],
+        'email' => $user['email'],
+        'isAdmin' => (bool)$user['isAdmin']
+      ];
     }
 
-    public function validateUser($email, $password)
-    {
-        // Log de inicio de la validación
-        error_log("Validating user with email: $email");
+    return false;
+  }
 
-        $query = "SELECT id, email, password, isAdmin FROM users WHERE email = :email LIMIT 1";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+  public function createUser($email, $password, $username, $isAdmin, $image)
+  {
+    $query = "INSERT INTO users (email, password, username, isAdmin, image)
+                  VALUES (:email, :password, :username, :isAdmin, :image)";
+    $stmt = $this->db->prepare($query);
+    $stmt->bindParam(':email', $email);
+    $stmt->bindParam(':password', $password);
+    $stmt->bindParam(':username', $username);
+    $stmt->bindParam(':isAdmin', $isAdmin);
+    $stmt->bindParam(':image', $image);
+    return $stmt->execute();
+  }
 
-        if ($user) {
-            // Log si se encuentra el usuario
-            error_log("User found: " . json_encode($user));
+  public function getUsersWithCourses()
+  {
+    $query = "SELECT 
+        u.id AS user_id,
+        u.email AS user_email,
+        GROUP_CONCAT(DISTINCT c.title ORDER BY c.title) AS courses_titles,
+        GROUP_CONCAT(DISTINCT c.id ORDER BY c.id) AS course_ids
+    FROM 
+        users u
+    LEFT JOIN 
+        user_courses uc ON uc.user_id = u.id
+    LEFT JOIN 
+        courses c ON uc.course_id = c.id
+    GROUP BY 
+        u.id
+    ORDER BY 
+        u.email;";
 
-            // Comparar la contraseña directamente con texto plano
-            if ($password === $user['password']) {
-                error_log("Password match for user: $email");
-                return [
-                    'id' => $user['id'],
-                    'email' => $user['email'],
-                    'isAdmin' => (bool)$user['isAdmin']
-                ];
-            } else {
-                // Log si la contraseña no coincide
-                error_log("Password mismatch for user: $email");
-            }
-        } else {
-            // Log si no se encuentra el usuario
-            error_log("User not found for email: $email");
-        }
+    $stmt = $this->db->prepare($query);
+    $stmt->execute();
 
-        return false;
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    error_log("Query result: " . json_encode($result));
+    return $result;
+  }
+
+  // Asignar un curso a un usuario
+  public function assignCourse($userId, $courseId)
+  {
+    // Verificar si el curso ya está asignado
+    $stmt = $this->db->prepare("SELECT * FROM user_courses WHERE user_id = :userId AND course_id = :courseId");
+    $stmt->bindParam(':userId', $userId);
+    $stmt->bindParam(':courseId', $courseId);
+    $stmt->execute();
+
+    // Si ya existe una asignación, no se asigna nuevamente
+    if ($stmt->rowCount() > 0) {
+      return false; // Curso ya asignado
     }
 
-    public function createUser($email, $password, $name, $surname, $age, $isAdmin, $image, $permittedCourses)
-    {
-        // Log de la creación del usuario
-        error_log("Attempting to create user with email: $email");
+    // Si no está asignado, asignar el curso
+    $stmt = $this->db->prepare("INSERT INTO user_courses (user_id, course_id) VALUES (:userId, :courseId)");
+    $stmt->bindParam(':userId', $userId);
+    $stmt->bindParam(':courseId', $courseId);
+    $stmt->execute();
 
-        // Consulta para insertar el nuevo usuario
-        $query = "INSERT INTO users (email, password, name, surname, age, isAdmin, image, permittedCourses)
-              VALUES (:email, :password, :name, :surname, :age, :isAdmin, :image, :permittedCourses)";
-        $stmt = $this->db->prepare($query);
+    return true; // Asignación exitosa
+  }
+  public function revokeCourse($userId, $courseId)
+  {
+    try {
+      // Log de depuración: datos recibidos
+      error_log("Received data: userId = " . $userId . ", courseId = " . $courseId);
 
-        // Vincular los parámetros
-        $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':password', $password); // Contraseña en texto plano
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':surname', $surname);
-        $stmt->bindParam(':age', $age);
-        $stmt->bindParam(':isAdmin', $isAdmin);
-        $stmt->bindParam(':image', $image);
-        $stmt->bindParam(':permittedCourses', $permittedCourses); // Vincular permittedCourses
+      // Verificar si el curso está asignado al usuario
+      $stmt = $this->db->prepare("SELECT * FROM user_courses WHERE user_id = :userId AND course_id = :courseId");
+      $stmt->bindParam(':userId', $userId);
+      $stmt->bindParam(':courseId', $courseId);
+      $stmt->execute();
 
-        $result = $stmt->execute();
+      // Si el curso no está asignado, no se puede desasignar
+      if ($stmt->rowCount() === 0) {
+        return false; // El curso no está asignado
+      }
 
-        // Log el resultado de la operación
-        if ($result) {
-            error_log("User created successfully: $email");
-        } else {
-            error_log("Failed to create user: $email");
-        }
+      // Eliminar la asignación
+      $stmt = $this->db->prepare("DELETE FROM user_courses WHERE user_id = :userId AND course_id = :courseId");
+      $stmt->bindParam(':userId', $userId);
+      $stmt->bindParam(':courseId', $courseId);
+      $stmt->execute();
 
-        return $result;
+      return true; // Desasignación exitosa
+    } catch (Exception $e) {
+      // Log de depuración: error en el flujo
+      error_log("Error in revokeCourse: " . $e->getMessage());
+      return false; // Error al desasignar
     }
+  }
 
-    public function getAllUsers()
-    {
-        // Log para obtener todos los usuarios
-        error_log("Fetching all users");
 
-        $query = "SELECT id, email , permittedCourses FROM users";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute();
-        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  public function getUserData($userId)
+  {
+    $stmt = $this->db->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt->execute([$userId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: false;
+  }
 
-        // Log de usuarios obtenidos
-        error_log("Fetched users: " . json_encode($users));
-
-        return $users;
+  public function updateUserData($userId, $userData)
+  {
+    $sql = "UPDATE users SET ";
+    $params = [];
+    foreach ($userData as $key => $value) {
+      $sql .= "$key = ?, ";
+      $params[] = $value;
     }
+    $sql = rtrim($sql, ', ') . " WHERE id = ?";
+    $params[] = $userId;
 
-    public function getUserData($userId)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE id = ?");
-        $stmt->execute([$userId]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // En lugar de hacer echo aquí, devolvemos los datos del usuario o `false` si no se encuentra
-        return $user ?: false;
-    }
-
-    public function updateUserData($userId, $userData)
-    {
-        // Crear la consulta SQL dinámicamente
-        $sql = "UPDATE users SET ";
-        $params = [];
-        foreach ($userData as $key => $value) {
-            $sql .= "$key = ?, ";
-            $params[] = $value;
-        }
-        $sql = rtrim($sql, ', ') . " WHERE id = ?";
-        $params[] = $userId;
-
-        // Preparar y ejecutar la consulta
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute($params);
-    }
-
-    public function getUserPermittedCourses($userId)
-    {
-        if (empty($userId)) {
-            throw new Exception('El ID de usuario es requerido');
-        }
-
-        $stmt = $this->db->prepare("SELECT permittedCourses FROM users WHERE id = ?");
-        $stmt->execute([$userId]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user) {
-            $courseIds = json_decode($user['permittedCourses'], true);
-            if (!empty($courseIds)) {
-                $placeholders = implode(',', array_fill(0, count($courseIds), '?'));
-                $stmtCourses = $this->db->prepare("SELECT title, description, category, level FROM courses WHERE id IN ($placeholders)");
-                $stmtCourses->execute($courseIds);
-                return $stmtCourses->fetchAll(PDO::FETCH_ASSOC);
-            }
-            throw new Exception('No hay cursos permitidos asignados al usuario');
-        }
-        throw new Exception('Usuario no encontrado');
-    }
+    $stmt = $this->db->prepare($sql);
+    return $stmt->execute($params);
+  }
 }

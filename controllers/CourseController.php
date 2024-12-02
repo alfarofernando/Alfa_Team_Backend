@@ -1,5 +1,4 @@
 <?php
-
 class CourseController
 {
     private $course;
@@ -9,13 +8,13 @@ class CourseController
         $this->course = new Course($db);
     }
 
+    // Obtener todos los cursos
     public function getCourses()
     {
-        // Obtener todos los cursos desde el modelo
         $courses = $this->course->getAllCourses();
-        // Establecer el encabezado de tipo JSON
         header('Content-Type: application/json');
-        //Devolver los cursos en formato JSON
         echo json_encode($courses);
     }
+
+    
 }
