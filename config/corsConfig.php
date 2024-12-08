@@ -17,3 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit;
 }
+
+ini_set('log_errors', 'On');
+ini_set('error_log', 'C:\wamp64\logs\php_error.log');
+ini_set('error_reporting', E_ALL);

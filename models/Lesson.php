@@ -10,23 +10,25 @@ class Lesson
 
     public function getLessonsByCourse($courseId)
     {
-        $query = "SELECT id, title, type, content FROM lessons WHERE course_id = :course_id";
+        $query = "SELECT * FROM lessons WHERE course_id = :course_id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':course_id', $courseId, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function addLesson($course_id, $title, $type, $content)
+    public function addLesson($course_id, $title, $type, $content, $is_enabled, $order_number)
     {
         try {
-            $query = "INSERT INTO lessons (course_id, title, type, content) 
-                      VALUES (:course_id, :title, :type, :content)";
+            $query = "INSERT INTO lessons (course_id, title, type, content, is_enabled, order_number) 
+                      VALUES (:course_id, :title, :type, :content, :is_enabled, :order_number)";
             $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':course_id', $course_id);
-            $stmt->bindParam(':title', $title);
-            $stmt->bindParam(':type', $type);
-            $stmt->bindParam(':content', $content);
+            $stmt->bindParam(':course_id', $course_id, PDO::PARAM_INT);
+            $stmt->bindParam(':title', $title, PDO::PARAM_STR);
+            $stmt->bindParam(':type', $type, PDO::PARAM_STR);
+            $stmt->bindParam(':content', $content, PDO::PARAM_STR);
+            $stmt->bindParam(':is_enabled', $is_enabled, PDO::PARAM_BOOL);
+            $stmt->bindParam(':order_number', $order_number, PDO::PARAM_INT);
             $stmt->execute();
 
             return ['success' => true, 'message' => 'Lesson added successfully'];
@@ -35,18 +37,21 @@ class Lesson
         }
     }
 
-    public function updateLesson($id, $course_id, $title, $type, $content)
+    public function updateLesson($id, $course_id, $title, $type, $content, $is_enabled, $order_number)
     {
         try {
             $query = "UPDATE lessons 
-                      SET course_id = :course_id, title = :title, type = :type, content = :content 
+                      SET course_id = :course_id, title = :title, type = :type, content = :content, 
+                          is_enabled = :is_enabled, order_number = :order_number
                       WHERE id = :id";
             $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':id', $id);
-            $stmt->bindParam(':course_id', $course_id);
-            $stmt->bindParam(':title', $title);
-            $stmt->bindParam(':type', $type);
-            $stmt->bindParam(':content', $content);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':course_id', $course_id, PDO::PARAM_INT);
+            $stmt->bindParam(':title', $title, PDO::PARAM_STR);
+            $stmt->bindParam(':type', $type, PDO::PARAM_STR);
+            $stmt->bindParam(':content', $content, PDO::PARAM_STR);
+            $stmt->bindParam(':is_enabled', $is_enabled, PDO::PARAM_BOOL);
+            $stmt->bindParam(':order_number', $order_number, PDO::PARAM_INT);
             $stmt->execute();
 
             return ['success' => true, 'message' => 'Lesson updated successfully'];
@@ -57,9 +62,14 @@ class Lesson
 
     public function deleteLesson($lessonId)
     {
-        $query = "DELETE FROM lessons WHERE id = :id";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':id', $lessonId, PDO::PARAM_INT);
-        return $stmt->execute();
+        try {
+            $query = "DELETE FROM lessons WHERE id = :id";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':id', $lessonId, PDO::PARAM_INT);
+            $stmt->execute();
+            return ['success' => true, 'message' => 'Lesson deleted successfully'];
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Error deleting lesson: ' . $e->getMessage()];
+        }
     }
 }

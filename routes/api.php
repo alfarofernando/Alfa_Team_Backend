@@ -73,23 +73,42 @@ function handleRequest($db)
 
 
     // Rutas de cursos
-    elseif ($method === 'GET' && strpos($uri, '/getCourses') !== false) {
+    // get all courses from ddbb
+    elseif ($method === 'GET' && strpos($uri, '/getAllCourses') !== false) {
         (new CourseController($db))->getAllCourses();
-    } elseif ($method === 'GET' && preg_match('/\/course\/(\d+)/', $uri, $matches)) {
+    }
+    // get a single course by id 
+    elseif ($method === 'GET' && preg_match('/\/course\/(\d+)/', $uri, $matches)) {
         $id = $matches[1]; // Captura el ID del curso desde la URL
         (new CourseController($db))->getCourseById($id);
-    } elseif ($method === 'POST' && $uri === '/addCourse') {
+    }
+    // add a course
+    elseif ($method === 'POST' && $uri === '/addCourse') {
         (new CourseController($db))->addCourse();
-    } elseif ($method === 'PUT' && preg_match('/\/updateCourse\/(\d+)/', $uri, $matches)) {
+    }
+    // update a selected course
+    elseif ($method === 'PUT' && preg_match('/\/updateCourse\/(\d+)/', $uri, $matches)) {
         $id = $matches[1];  // Obtén el ID del curso desde la URL
         $data = json_decode(file_get_contents('php://input'), true);  // Obtener los datos enviados en el cuerpo de la solicitud
-        (new CourseController($db))->updateCourse($id, $data);  // Llama al método para actualizar el curso
-    } elseif (
+        (new CourseController($db))->updateCourse($id);  // Llama al método para actualizar el curso
+    }
+    // delete a selected course
+    elseif (
         $method === 'DELETE' && preg_match('/\/deleteCourse\/(\d+)/', $uri, $matches)
     ) {
         $id = $matches[1];
+        error_log("attempting delete course with id: $id");
         (new CourseController($db))->deleteCourse($id);
+        //get all courses for a single user by id
+    } elseif ($method === 'GET' && preg_match('/\/getCoursesByUserId\/(\d+)/', $uri, $matches)) {
+        $id = $matches[1];
+        (new CourseController($db))->getCoursesByUserId($id);
+    } //disable selected course
+    elseif ($method === 'PUT' && preg_match('/\/disableCourse\/(\d+)/', $uri, $matches)) {
+        $id = $matches[1];
+        (new CourseController($db))->disableCourse($id);
     }
+
     // rutas de lecciones
     elseif ($method === 'GET' && preg_match('/\/lessons\/course\/(\d+)/', $uri, $matches)) {
         $courseId = $matches[1];
@@ -101,7 +120,20 @@ function handleRequest($db)
     } elseif ($method === 'DELETE' && preg_match('/\/lesson\/delete\/(\d+)/', $uri, $matches)) {
         $lessonId = $matches[1];
         (new Lesson($db))->deleteLesson($lessonId);
-    } else {
+    }
+
+    // rutas para imagenes
+    // Crear una nueva imagen asociada a un curso
+    elseif ($method === 'POST' && strpos($uri, '/uploadImage') !== false) {
+        (new ImageController($db))->createImage();
+    }
+    // Actualizar una imagen existente de un curso
+    elseif ($method === 'POST' && preg_match('/\/updateImage\/(\d+)/', $uri, $matches)) {
+        $id = $matches[1];
+        (new ImageController($db))->updateImage($id);
+    }
+    //ruta con error 404
+    else {
         http_response_code(404);
         echo json_encode(['error' => 'Ruta no encontrada']);
     }

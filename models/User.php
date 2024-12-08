@@ -46,6 +46,7 @@ class User
     $query = "SELECT 
         u.id AS user_id,
         u.email AS user_email,
+        c.is_enabled,
         GROUP_CONCAT(DISTINCT c.title ORDER BY c.title) AS courses_titles,
         GROUP_CONCAT(DISTINCT c.id ORDER BY c.id) AS course_ids
     FROM 
